@@ -1,4 +1,4 @@
-FROM node:20-alpine3.19 as builder
+FROM node:20-alpine as builder
 
 # Set working directory
 WORKDIR /usr/app
@@ -24,7 +24,7 @@ EXPOSE 3000
 
 # Run container as non-root (unprivileged) user
 # The node user is provided in the Node.js Alpine base image
-USER node
+# USER node
 
 # Run npm start script with PM2 when container starts
 CMD [ "pm2-runtime", "npm", "--", "start" ]
