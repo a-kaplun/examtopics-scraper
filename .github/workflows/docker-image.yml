@@ -20,7 +20,7 @@ jobs:
       uses: docker/setup-buildx-action@v3.3.0          
     - name: Build the Docker image
       run: |
-        docker buildx build --platform linux/amd64,linux/arm64,linux/arm/v7 --file Dockerfile --tag adamkpn/examtopics-scraper:$(date +%Y%m) .
+        docker buildx build --platform linux/amd64,linux/arm64 --file Dockerfile --tag adamkpn/examtopics-scraper:$(date +%Y%m) .
         docker tag adamkpn/examtopics-scraper:$(date +%Y%m) adamkpn/examtopics-scraper:latest
     - name: Push the Docker image
       run: |
