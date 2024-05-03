@@ -18,7 +18,7 @@ jobs:
         password: ${{ secrets.DOCKERHUB_ACCESS_TOKEN }}
     - name: Build the Docker image
       run: |
-        docker build . --file Dockerfile --tag adamkpn/examtopics-scraper:$(date +%Y%m)
+        docker buildx build --platform linux/amd64,linux/arm64,linux/arm/v7 --file Dockerfile --tag adamkpn/examtopics-scraper:$(date +%Y%m) .
         docker tag adamkpn/examtopics-scraper:$(date +%Y%m) adamkpn/examtopics-scraper:latest
     - name: Push the Docker image
       run: |
