@@ -1,9 +1,8 @@
-import { ScraperSettings, SettingsContext } from "@/context/settings";
 import { FC, useContext, useEffect, useState } from "react";
-import InputText from "../ui/inputtext";
 import _ from "lodash";
-import { FaChevronDown, FaChevronUp } from "react-icons/fa";
+import { ScraperSettings, SettingsContext } from "@/context/settings";
 import Accordion from "../ui/accordion";
+import InputText from "../ui/inputtext";
 
 type SettingsProps = {
   disabled?: boolean;
@@ -12,7 +11,6 @@ type SettingsProps = {
 const Settings: FC<SettingsProps> = ({ disabled }) => {
   const { settings, saveSettings } = useContext(SettingsContext);
   const [draft, setDraft] = useState<ScraperSettings>(settings);
-  const [visible, setVisible] = useState(false);
 
   const handleSave = () => {
     saveSettings(draft);
@@ -24,8 +22,7 @@ const Settings: FC<SettingsProps> = ({ disabled }) => {
 
   return <Accordion
     label="Settings"
-    collapsed={!visible}
-    toggle={() => setVisible(prev => !prev)}
+    collapsed={true}
   >
     <div className="mb-4">
       <div className="mb-2">Fetch question links</div>

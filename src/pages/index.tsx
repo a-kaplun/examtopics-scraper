@@ -1,20 +1,18 @@
-import { Inter } from "next/font/google";
-import { Question, ScraperState, getQuestionLinks, getQuestions } from "@/lib/scraper";
-import { useContext, useEffect, useRef, useState } from "react";
-import Dropdown from "@/components/ui/dropdown";
-import Spinner from "@/components/ui/spinner";
-import InputText from "@/components/ui/inputtext";
-import { providerOptions } from "@/lib/examtopics";
-import { SettingsContext } from "@/context/settings";
-import Settings from "@/components/scraper/settings";
-import { saveAs } from 'file-saver';
-import ProgressBar from "@/components/ui/progressbar";
+import { FC, useContext, useEffect, useState } from "react";
 import { useRouter } from "next/router";
+import Settings from "@/components/scraper/settings";
+import Dropdown from "@/components/ui/dropdown";
+import InputText from "@/components/ui/inputtext";
+import ProgressBar from "@/components/ui/progressbar";
 import { ExamContext } from "@/context/exam";
+import { SettingsContext } from "@/context/settings";
+import { providerOptions } from "@/lib/examtopics";
+import { getQuestionLinks, getQuestions } from "@/lib/scraper";
+import { AdminScraperSettings } from "@/types/settings";
+import { ScraperState } from "@/types/scraper";
+import { useSession } from "next-auth/react";
 
-const inter = Inter({ subsets: ["latin"] });
-
-export default function Home() {
+const Home: FC = () => {
   const router = useRouter();
   const { examState, saveExamState, exportExamState } = useContext(ExamContext);
   const [state, setState] = useState<ScraperState>({ provider: "", examCode: "" });
@@ -24,6 +22,8 @@ export default function Home() {
     max: 0,
   });
   const { settings } = useContext(SettingsContext);
+  const [adminSettings, setAdminSettings] = useState<AdminScraperSettings>();
+  const { data: session, status: sessionStatus } = useSession();
 
   const updateProgress = (value: number, max: number) => {
     setProgress(prev => ({ ...prev, value, max }));
@@ -101,6 +101,11 @@ export default function Home() {
   const isCompleted = state?.questionLinks && state?.questions &&
     state?.questionLinks?.length === state?.questions?.length;
 
+
+  useEffect(() => {
+    fetch("/api/admin/scraper").then(res => res.json()).then(setAdminSettings);
+  }, []);
+
   useEffect(() => {
     // Reset fields
     setState(prev => ({
@@ -122,6 +127,19 @@ export default function Home() {
       });
     }
   }, [isInterrupted, isCompleted]);
+
+  if (adminSettings === undefined || sessionStatus === "loading") {
+    return <></>;
+  } else if (!(adminSettings?.access === "public" ||
+    (adminSettings?.access === "restricted" && session?.user?.role && adminSettings.allowedRoles.includes(session?.user?.role))
+  )) {
+    return <div className="max-w-[48rem] mx-auto flex flex-col justify-center">
+      <div className="text-lg font-semibold text-center mt-48" >
+        Scraper function is disabled
+      </div>
+      <button className="button-default w-full mt-4" onClick={() => window.location.href = "/exam"}>Go to Exam</button>
+    </div>;
+  }
 
   return (
     <div className="max-w-[48rem] mx-auto flex flex-col justify-center">
@@ -198,4 +216,6 @@ export default function Home() {
       <Settings disabled={state?.isInProgress} />
     </div>
   );
-}
+};
+
+export default Home;
